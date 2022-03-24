@@ -1,0 +1,13 @@
+@charset "utf-8";
+
+@forward "foundation/base";
+@forward "foundation/*";
+
+
+body {
+	.sticky,
+	.gallery-caption,
+	.bypostauthor {
+		display: block;
+	}
+}
