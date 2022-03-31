@@ -38,8 +38,7 @@ root
 ## 使い方
 ### 1."[Local by Flywheel](https://local.getflywheel.com/)"によるWordPressのインストール
 
-### 2.リポジトからデータをプル
-``` git pull origin git@github.com:yat8823jp/themrishv3.git ```
+### 2.リポジトからデータをダウンロード
 
 ### 3.クローンしたファイルの移動
 
