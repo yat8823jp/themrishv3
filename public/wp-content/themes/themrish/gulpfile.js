@@ -8,7 +8,6 @@ const { src, dest, watch, series, parallel } = require( 'gulp' );
 const postcss          = require( 'gulp-postcss' ),
 	autoprefixer     = require( 'autoprefixer' ),
 	stylelint        = require( 'stylelint' ),
-	bulkSass         = require( 'gulp-sass-bulk-import' ),
 	sass             = require( 'gulp-dart-sass' ),
 	sassGlob         = require( 'gulp-sass-glob-use-forward' ),
 	browserSync      = require( 'browser-sync' ).create(),//ブラウザシンク
@@ -32,23 +31,22 @@ const postcss          = require( 'gulp-postcss' ),
 
 	const paths = {
 		rootDir   : './',
-		srcDir    : { php: './**/*.php', css: './src/styles/**/*.scss', js: './src/scripts/**/*.js', img: './images/**/*.{jpg,jpeg,png,svg,gif}' },
-		dstDir    : { css: './madoguchi/css', js: './madoguchi/js', img: './madoguchi/images' },
+		srcDir    : { php: './**/*.php', css: './src/styles/**/*.scss', js: './src/scripts/**/*.js', img: './src/images/**/*.{jpg,jpeg,png,svg,gif}' },
+		dstDir    : { css: './css', js: './js', img: './images' },
 		serverDir : 'localhost',
-		styleguide: { base: './src/styleguide', css: './src/styleguide/styles/**/*.scss', js: './src/styleguide/scripts/**/*.scss' },
+		styleguide: { base: './src/styleguide', css: './src/styles/**/*.scss', js: './src/scripts/**/*.js', img: './src/images/**/*.{jpg,jpeg,png,svg,gif}', watch: './src/**/*' },
 	};
 
 	const options = minimist( process.argv.slice( 2 ), {
 		string: 'path',
 		default: {
-			path: 'sample.local' // 引数の初期値
+			path: 'themrish.local' // 引数の初期値
 		}
 	});
 
 	fractal.set( 'project.title', 'Style guide' );
 	fractal.components.set( 'path', './src/styleguide/' );
 	fractal.docs.set('path', './src/styleguide/docs' );
-	fractal.web.set( 'static.path', './htdocs/assets' );
 	fractal.web.set( 'builder.dest', './styleguide' );
 	const logger = fractal.cli.console;
 
@@ -71,12 +69,13 @@ const css = () => {
 	.pipe( cached( 'scss' ) )
 	.pipe( sass( {
 		outputStyle: 'expanded',
-		minifier: true //圧縮の有無 true/false
+		minifier: true, //圧縮の有無 true/false
+		includePaths: ['./src/styles']
 	} ) )
 	.pipe( postcss( [
 		autoprefixer( {
 			cascade: false,
-			grid: "autoplace"
+			grid: true
 		} ),
 	] ) )
 	.pipe( rename( {
@@ -95,14 +94,29 @@ function styleguideTask() {
 	return builder.build().then( () => logger.success( 'スタイルガイドの出力処理が完了しました。' ) );
 }
 
-const styleguideServer = (done) => {
+const styleguideServer = ( done ) => {
 	browserSync.init( styleguideReload );
 	done();
 }
+
 const styleguideReload = {
 	server: './styleguide/',
 	notify: false
 }
+
+const devcopyComponent = ( done ) => {
+	return src([
+	'./src/styles/object/component/*.scss'
+	], {
+		dot: true
+	} )
+	.pipe( rename ( function ( path ) {
+		path.dirname = '/components/' + path.basename.replace( '_', '' );
+		path.basename = 'style';
+	} ) )
+	.pipe( dest( paths.styleguide.base ) );
+	done();
+};
 
 /*
  * JavaScript
@@ -147,7 +161,7 @@ const imageminOption = [
 	} )
 ];
 
-const images = ( done ) => {
+const imagemcopy = ( done ) => {
 	return src( paths.srcDir.img )
 	.pipe( imagemin( imageminOption ) )
 	.pipe( dest( paths.dstDir.img ) );
@@ -155,22 +169,20 @@ const images = ( done ) => {
 
 const server = ( done ) => {
 	browserSync.init( {
-		// server: {
-		// 	baseDir: paths.rootDir
-		// },
+		proxy: {
+			target: options.path
+		},
 		notify: true,
-	    startPath: '/madoguchi/',
-	    server: {
-	      baseDir: paths.rootDir,
-	      middleware: [
-	        connectSSI({
-	          baseDir: paths.rootDir,
-	          ext: '.php'
-	        })
-	      ]
-	    },
+		startPath: '/'
 	} );
 	done();
+}
+
+const browserSyncOption = {
+	proxy: {
+	  target: options.domain
+	},
+	notify: true
 }
 
 const reload = ( done ) => {
@@ -178,12 +190,6 @@ const reload = ( done ) => {
 	done();
 }
 
-// const imagemin = ( done ) => {
-// 	return src( 'src/images/*' )
-// 	.pipe( gulpimagemin )
-// 	.pipe( dest.images );
-// 	done();
-// }
 
 // /*
 //  * Build
@@ -215,16 +221,27 @@ const watchFile = ( done ) => {
 	watch( paths.srcDir.css, series( css, reload ) );
 	watch( paths.srcDir.js , series( js,  reload ) );
 	watch( paths.srcDir.php , series( reload ) );
+	watch( paths.srcDir.img , series( imagemcopy, reload ) );
+	done();
+}
+
+const watchStyleguide = ( done ) => {
+	watch( paths.srcDir.css, series( css, reload ) );
+	watch( paths.srcDir.js , series( js,  reload ) );
+	watch( paths.srcDir.img , series( imagemcopy, reload ) );
 	done();
 }
 
 exports.css = css;
 exports.js = js;
-exports.images = images;
+exports.imagemcopy = imagemcopy;
 
 exports.clean = clean;
-exports.devcopy = series( clean, devcopy );
+exports.devcopy = series( clean, devcopy, devcopyComponent );
 exports.build = series( devcopy, styleguideTask );
 
 exports.default = parallel( css, js, watchFile, server );
-exports.styleguide = styleguideServer;
+exports.styleguide = series(
+	parallel( css, js, watchStyleguide, devcopyComponent, styleguideTask ),
+	parallel( watchStyleguide, styleguideServer )
+)
