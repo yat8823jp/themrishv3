@@ -40,12 +40,12 @@
     "gulp-uglify": "^3.0.2",
     "imagemin-pngquant": "^9.0.2",
     "minimist": "^1.2.6",
+    "npm-check-updates": "^12.5.4",
     "path": "^0.12.7",
     "postcss": "^8.4.12",
     "sass": "^1.49.9",
     "stylelint": "^14.6.0",
     "vinyl-source-stream": "^2.0.0",
     "watchify": "^4.0.0"
-  },
-  "devDependencies": {}
+  }
 }

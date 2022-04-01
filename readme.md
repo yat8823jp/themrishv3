@@ -25,12 +25,12 @@ root
 
 - WordPress 5.9.0 以上
 - [Local](https://local.getflywheel.com/) by Flywheel もしくはその他開発環境（PHP, MySQL）
-- Node v12.13.1 以上
+- Node 16.14.2 以上
 
 ## 依存アプリケーション
 
-- node.js version: v12.13.1 later
-- npm version: 6.12.1 later
+- node.js version: 16.14.2 later
+- npm version: 8.5.0 later
 - gulp version: 4.0.2 later
 - babel babel2015
 - browsersync

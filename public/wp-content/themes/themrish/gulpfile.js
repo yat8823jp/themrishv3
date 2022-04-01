@@ -242,6 +242,6 @@ exports.build = series( devcopy, styleguideTask );
 
 exports.default = parallel( css, js, watchFile, server );
 exports.styleguide = series(
-	parallel( css, js, watchStyleguide, devcopyComponent, styleguideTask ),
+	parallel( css, js, devcopyComponent, styleguideTask ),
 	parallel( watchStyleguide, styleguideServer )
 )
