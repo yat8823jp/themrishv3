@@ -1,2 +1,12 @@
+@use "../foundation/mixin";
+
 .l-header {
+	@include mixin.mq( tb ) {
+	}
+	@include mixin.mq( pc ) {
+	}
+	@include mixin.mq( wide ) {
+	}
+	@include mixin.mq( full ) {
+	}
 }
