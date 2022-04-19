@@ -75,10 +75,8 @@ select {
     scroll-behavior: auto !important;
   }
 }
-:root {
-  font-size: 62.5%;
-}
-
+/* rem */
+/* breakpoint */
 .c-color {
   color: #333;
 }
