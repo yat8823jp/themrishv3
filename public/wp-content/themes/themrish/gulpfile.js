@@ -68,8 +68,7 @@ const css = () => {
 	.pipe( sass.sync().on( 'error', sass.logError ) )
 	.pipe( cached( 'scss' ) )
 	.pipe( sass( {
-		outputStyle: 'expanded',
-		minifier: true, //圧縮の有無 true/false
+		outputStyle: 'compressed',
 		includePaths: ['./src/styles']
 	} ) )
 	.pipe( postcss( [

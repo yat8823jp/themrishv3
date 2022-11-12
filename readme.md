@@ -76,5 +76,5 @@ root
 - ` gulp styleguide ` にてビルドとともにブラウザシンクが立ち上がります
 
 ## version
-
+- 3.0.1 scss compiler change setting.
 - 3.0.0 release
